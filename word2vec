@@ -1,0 +1,34 @@
+import numpy as np
+from gensim.models import Word2Vec, KeyedVectors
+
+# Загрузите заранее обученную модель Word2Vec
+# Например, можно использовать модель Google News (объём ~1.5 Гб)
+# model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+
+# Если у вас нет предобученной модели, вы можете обучить свою на некотором наборе данных.
+# В качестве примера, создадим небольшой набор токенов.
+sentences = [
+    ["пример", "предложения", "для", "обучения", "word2vec"],
+    ["другое", "предложение"],
+    ["и", "ещё", "одно", "предложение"]
+]
+
+# Обучаем модель на данных
+model = Word2Vec(sentences, vector_size=100, window=5, min_count=1, workers=4)
+
+# Функция для получения вектора предложения
+def sentence_to_vector(sentence):
+    vec = np.zeros(model.vector_size)
+    count = 0
+    for word in sentence.split():
+        if word in model.wv:
+            vec += model.wv[word]
+            count += 1
+    if count > 0:
+        vec /= count  # ортогонализация по количеству слов в предложении
+    return vec
+
+# Пример использования
+sentence = "пример предложения для обучения"
+vector = sentence_to_vector(sentence)
+print(vector)
